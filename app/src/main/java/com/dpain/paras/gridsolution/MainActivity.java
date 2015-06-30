@@ -1,10 +1,15 @@
 package com.dpain.paras.gridsolution;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
+/*import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.Fragment;*/
+import android.graphics.Point;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,13 +28,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+public class MainActivity extends Activity {
 
-public class MainActivity extends ActionBarActivity {
+    private static final int LEFT_MARGIN = 0;
+    private static final int TOP_MARGIN = 0;
+    private static final int RIGHT_MARGIN = 0;
+    private static final int BOTTOM_MARGIN = 0;
 
-    private static final int LEFT_MARGIN = 20;
-    private static final int TOP_MARGIN = 15;
-    private static final int RIGHT_MARGIN = 20;
-    private static final int BOTTOM_MARGIN = 15;
+    /*Display display = getWindowManager().getDefaultDisplay();
+    Point size = new Point();
+    display.getSize
+    int width = size.x;
+    int height = size.y;*/
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +50,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         long randSeed = 100;
-        Matrix m = new Matrix(4, randSeed);
+        Matrix m = new Matrix(15, randSeed);
         TableRow.LayoutParams params = new TableRow.LayoutParams();
         params.setMargins(LEFT_MARGIN, TOP_MARGIN, RIGHT_MARGIN, BOTTOM_MARGIN);
 
@@ -45,13 +58,17 @@ public class MainActivity extends ActionBarActivity {
         TableRow[] rowObj = new TableRow[m.getRowSize()];
         EditText[][] val = new EditText[m.getRowSize()][m.getColumnSize()];
 
+        DisplayMetrics display = this.getResources().getDisplayMetrics();
+        int width = display.widthPixels;
+        int colNum = m.getColumnSize();
+
         // Init and assign values
         for(int i=0;i<m.getRowSize();i++) {
             rowObj[i] = new TableRow((mainTable.getContext()));
-            for(int j=0;j<m.getColumnSize();j++){
+            for(int j=0;j<colNum;j++){
                 val[i][j] = new EditText(mainTable.getContext());
-                val[i][j].setInputType(InputType.TYPE_CLASS_NUMBER);
-                val[i][j].setTextSize(30);
+                val[i][j].setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
+                val[i][j].setTextSize(TypedValue.COMPLEX_UNIT_PX, (width/(colNum-1)/3));
                 val[i][j].setText(String.valueOf(m.GetElement(i,j)));
             }
         }
@@ -71,28 +88,5 @@ public class MainActivity extends ActionBarActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         // getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-
-            // View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            GridViewGroup gridViewL = (GridViewGroup) inflater.inflate(R.layout.fragment_main, container, false);
-            Matrix m = new Matrix(4,4,1);
-
-            MatrixHandler matrixHandler = new MatrixHandler(gridViewL, m);
-            matrixHandler.DisplayGrid();
-
-            return matrixHandler._rootView;
-        }
     }
 }
