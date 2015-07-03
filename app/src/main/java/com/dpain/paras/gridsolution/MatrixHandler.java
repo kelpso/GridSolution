@@ -1,41 +1,84 @@
 package com.dpain.paras.gridsolution;
 
-import android.app.Fragment;
-import android.content.res.ColorStateList;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-
-import java.util.ArrayList;
+import android.content.Context;
+import android.graphics.Color;
+import android.text.InputType;
+import android.view.Gravity;
+import android.widget.EditText;
+import android.widget.HorizontalScrollView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 
 public class MatrixHandler {
 
-    public GridViewGroup _rootView;
+    // View which is supposed to contain the generated matrix TableLayout
+    private HorizontalScrollView _parentView;
+    // Context of the parentView
+    private Context _parentContext;
+    // Associated Matrix object and related attributes
     private Matrix _m;
+    private int _roSize;
+    private int _colSize;
 
-    public MatrixHandler(GridViewGroup rootView, Matrix m) {
-        _rootView = rootView;
-        _m = m;
+    // UI related fields
+    private TableLayout _mainTable;
+    // To set Layout width and height to WRAP_CONTENT
+    private TableLayout.LayoutParams _tblParams;
+    private TableRow[] _rowObj;
+    private EditText[][] _txtBoxVal;
+
+
+    public MatrixHandler(Matrix M, HorizontalScrollView ParentView) {
+        _m = M;
+        _roSize = _m.getRowSize();
+        _colSize = _m.getColumnSize();
+        _parentView = ParentView;
+        _parentContext = _parentView.getContext();
+
+        _mainTable = new TableLayout(_parentView.getContext());
+        _rowObj = new TableRow[_roSize];
+        _txtBoxVal = new EditText[_roSize][_colSize];
+        _tblParams = new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT);
     }
 
-    public void DisplayGrid() {
-        // local vars
-        int row = _m.getRowSize();
-        int column = _m.getColumnSize();
-        double[][] grid = _m.getGrid();
+    public void DisplayMatrix() {
+        // Init _mainTable with basic attributes
+        _mainTable.setGravity(Gravity.START);
+        _mainTable.setBackgroundResource(R.drawable.rect_empty_border);
 
-        TextView[][] textViewGrid = new TextView[row][column];
+        // testing--
+        int dispWidth = _parentContext.getResources().getDisplayMetrics().widthPixels;
+        int dispHeight = _parentContext.getResources().getDisplayMetrics().heightPixels;
+        // txtSize = 3 * dispArea/(matrixArea + 1/3)
+        int txtSize = (3 * dispHeight * dispWidth) / ((3 * _colSize * _roSize) + 1);
+        int pad = txtSize / 3;
+        // --testing
 
-        // textView Init and assignment
-        for(int ro = 0; ro < row; ro++) {
-            for (int col = 0; col < column; col++) {
-                textViewGrid[ro][col] = new TextView(_rootView.getContext());
-                textViewGrid[ro][col].setTextColor(34);
-                textViewGrid[ro][col].setText(String.valueOf(grid[ro][col]));
-                // WRAP_CONTENT = -2
-                _rootView.addView(textViewGrid[ro][col], ViewGroup.LayoutParams.WRAP_CONTENT);
-            }// --column loop end
-        }// --row loop end;
+        // Init txtBox with basic attributes and assign element value
+        for (int i = 0; i < _roSize; i++) {
+            _rowObj[i] = new TableRow(_mainTable.getContext());
+            for (int j = 0; j < _colSize; j++) {
+                _txtBoxVal[i][j] = new EditText(_mainTable.getContext());
+                _txtBoxVal[i][j].setBackgroundResource(R.drawable.rect_empty_border);
+                _txtBoxVal[i][j].setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
+                _txtBoxVal[i][j].setGravity(Gravity.CENTER);
+                _txtBoxVal[i][j].setTextColor(Color.GRAY);
+                // _txtBoxVal[i][j].setTextSize(TypedValue.COMPLEX_UNIT_PX, (txtSize));
+                // _txtBoxVal[i][j].setPadding(pad,pad,pad,pad);
 
+                _txtBoxVal[i][j].setText(String.valueOf(_m.GetElement(i, j)));
+            }
+        }
+
+        for (int i = 0; i < _roSize; i++) {
+            for (int j = 0; j < _colSize; j++) {
+                // Add txtBox to the Row
+                _rowObj[i].addView(_txtBoxVal[i][j]);
+            }
+            // Add the row of txtBoxes to the table
+            _mainTable.addView(_rowObj[i]);
+        }
+        // Add table to the parentView
+        _parentView.addView(_mainTable, _tblParams);
     }
 }
