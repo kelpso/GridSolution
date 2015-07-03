@@ -20,7 +20,7 @@ public class MatrixHandler {
     private int _roSize;
     private int _colSize;
 
-    // UI related fields
+    // GUI related fields
     private TableLayout _mainTable;
     // To set Layout width and height to WRAP_CONTENT
     private TableLayout.LayoutParams _tblParams;
